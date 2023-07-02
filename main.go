@@ -2,42 +2,49 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"os"
 
 	dolk "github.com/dark-enstein/dolk/api/v1"
 	"github.com/dark-enstein/dolk/auto"
+	"github.com/dark-enstein/dolk/dlog"
 	"google.golang.org/grpc"
 )
 
+var (
+	ErrNoPortSpecified  = fmt.Errorf("no port specified")
+	ErrListenerNotStart = fmt.Errorf("listener couldn't start")
+	ErrServerNotStart   = fmt.Errorf("server couldn't start")
+)
+
 func main() {
+	log := dlog.NewLogger().Err
+	trace := dlog.NewLogger().Trace
+
 	parsed := parse(os.Args[1:])
 	port, ok := parsed["port"]
 	if !ok {
-		log.Println("no port specified")
+		log.Fatal().Str("scope", "entrypoint").Err(ErrNoPortSpecified).Send()
 		return
 	}
-	fmt.Println("grpc server started on port:", port)
+	trace.Info().Msgf("grpc server started on port%v\n", port)
 
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
-		log.Println(err)
+		log.Fatal().Str("scope", "entrypoint").Err(err).Msg(ErrListenerNotStart.Error())
 		return
 	}
 
 	s := grpc.NewServer()
-	dolk.RegisterDolkServer(s, &auto.Server{})
+	dolk.RegisterDolkServer(s, &auto.Server{Logger: dlog.NewLogger()})
 	if err := s.Serve(listener); err != nil {
-		log.Fatalln("server couldn't start", err)
+		log.Fatal().Str("scope", "entrypoint").Err(err).Msg(ErrServerNotStart.Error())
 	}
 }
 
 func parse(s []string) map[string]string {
 	parsed := make(map[string]string)
-	fmt.Println(parsed)
 	for k, v := range s {
-		//fmt.Println(s[k+1])
 		switch v {
 		case "--port", "-p":
 			parsed["port"] = fmt.Sprintf(":%v", s[k+1])

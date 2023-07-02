@@ -11,13 +11,13 @@ var (
 )
 
 type Config struct {
-	config   []byte
-	metadata string
+	Config   []byte
+	Metadata string
 }
 
 func (cfg *Config) String() string {
 	var config string
-	err := json.Unmarshal(cfg.config, config)
+	err := json.Unmarshal(cfg.Config, config)
 
 	if err != nil {
 		log.Println(ErrFailedToUnmarshalJson)
@@ -25,5 +25,5 @@ func (cfg *Config) String() string {
 	}
 
 	return fmt.Sprintf("config: %v\nmetadata: %v", config,
-		cfg.metadata)
+		cfg.Metadata)
 }
