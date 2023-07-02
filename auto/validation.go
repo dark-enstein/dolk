@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	dolk "github.com/dark-enstein/dolk/api/v1"
+	"github.com/dark-enstein/dolk/config"
 	"github.com/dark-enstein/dolk/engine"
 )
 
@@ -20,11 +21,11 @@ var (
 )
 
 var supportedProviders = map[string]string{
-	"AWS": "ongoing",
+	"AWS": done,
 }
 
 type Detention struct {
-	Config   engine.Config
+	Config   config.Config
 	Provider string
 	UUID     string
 }
@@ -54,11 +55,12 @@ func DetentionDirector(ctx context.Context,
 		Config:   config,
 		Provider: prov,
 		UUID:     uuid,
-	}, false, nil
+	}, true, nil
 }
 
-func validateConfig(config *dolk.Config) (engine.Config, bool, error) {
-	return engine.Config{}, true, nil
+func validateConfig(cfg *dolk.Config) (config.Config, bool, error) {
+	tags := getTagsInCsv(cfg.Tag)
+	return config.Config{Tags: tags}, true, nil
 }
 
 func validateUUID(uuid string) (string, bool, error) {

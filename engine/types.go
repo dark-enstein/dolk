@@ -3,6 +3,7 @@ package engine
 import (
 	"time"
 
+	"github.com/dark-enstein/dolk/config"
 	"github.com/dark-enstein/dolk/cred"
 	"github.com/dark-enstein/dolk/provider"
 	"github.com/dark-enstein/dolk/shape"
@@ -11,14 +12,7 @@ import (
 type EngineRequest struct {
 	UUID     string
 	Provider string
-	Config   Config
-}
-
-type Config struct {
-	Version    string
-	Name       string
-	Tags       []string
-	Directives string
+	Config   config.Config
 }
 
 func (er *EngineRequest) WithUUID(u string) *EngineRequest {
@@ -32,7 +26,7 @@ func (er *EngineRequest) WithProvider(prov string) *EngineRequest {
 	return er
 }
 
-func (er *EngineRequest) WithConfig(c Config) *EngineRequest {
+func (er *EngineRequest) WithConfig(c config.Config) *EngineRequest {
 	er.Config = c
 	return er
 }
@@ -41,7 +35,10 @@ func (er *EngineRequest) Run() EngineResponse {
 	worker := provider.Init(er.Provider)
 
 	shape, err := worker.Deploy()
-	return EngineResponse{Shape: shape, Error: err}
+	return EngineResponse{AccessConfig: &cred.
+	Config{Config: []byte("access your new deployment here"), Metadata: "no metadata"},
+		Shape: shape,
+		Error: err}
 }
 
 type EngineResponse struct {
