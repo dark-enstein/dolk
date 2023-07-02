@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.23.3
-// source: auto.proto
+// source: api/v1/auto.proto
 
 package dolk
 
@@ -105,5 +105,5 @@ var Dolk_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "auto.proto",
+	Metadata: "api/v1/auto.proto",
 }
