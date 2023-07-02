@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package dolk;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/dark-enstein/dolk";
+
+message CreateRequest {
+  Config Config = 1;
+  string UUID = 2;
+}
+
+message CreateResponse {
+  int32 Code = 1;
+  bool Created = 2;
+  string Error = 3;
+  string State = 4;
+  string AccessConfig = 5;
+  google.protobuf.Timestamp CreatedTime = 6;
+}
+
+message Config {
+  string Version = 1;
+  provider Provider = 2;
+  string ResourceName = 3;
+  string Tag = 4;
+  string Options = 5;
+}
+
+enum provider {
+  AWS = 0;
+  GCLOUD = 1;
+  AZURE = 2;
+  ORACLE = 3;
+}
+
+service Dolk {
+  rpc Create(CreateRequest) returns (CreateResponse) {};
+}
