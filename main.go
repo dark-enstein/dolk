@@ -1,13 +1,13 @@
 package main
 
 import (
-	dolk "dolk/api/v1"
-	"dolk/auto"
 	"fmt"
 	"log"
 	"net"
 	"os"
 
+	dolk "github.com/dark-enstein/dolk/api/v1"
+	"github.com/dark-enstein/dolk/auto"
 	"google.golang.org/grpc"
 )
 

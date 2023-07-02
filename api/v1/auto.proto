@@ -2,13 +2,12 @@ syntax = "proto3";
 
 package dolk;
 
-import "google/protobuf/timestamp.proto";
-
 option go_package = "github.com/dark-enstein/dolk";
 
 message CreateRequest {
   Config Config = 1;
-  string UUID = 2;
+  string Provider = 2;
+  string UUID = 3;
 }
 
 message CreateResponse {
@@ -17,22 +16,14 @@ message CreateResponse {
   string Error = 3;
   string State = 4;
   string AccessConfig = 5;
-  google.protobuf.Timestamp CreatedTime = 6;
+  string CreatedTime = 6;
 }
 
 message Config {
   string Version = 1;
-  provider Provider = 2;
-  string ResourceName = 3;
-  string Tag = 4;
-  string Options = 5;
-}
-
-enum provider {
-  AWS = 0;
-  GCLOUD = 1;
-  AZURE = 2;
-  ORACLE = 3;
+  string ResourceName = 2;
+  string Tag = 3; // csv
+  string Options = 4;
 }
 
 service Dolk {
