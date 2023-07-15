@@ -2,28 +2,35 @@ package auto
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	dolk "github.com/dark-enstein/dolk/api/v1"
 	"github.com/dark-enstein/dolk/dlog"
+	"github.com/rs/zerolog"
 )
 
 type Server struct {
-	Logger *dlog.Logger
+	Genke *dlog.Logger
 	dolk.UnimplementedDolkServer
+}
+
+func logInit(s *Server) (zerolog.Logger, zerolog.Logger) {
+	return s.Genke.Trace, s.Genke.Err
 }
 
 func (s *Server) Create(ctx context.Context,
 	req *dolk.CreateRequest) (resp *dolk.CreateResponse, err error) {
-	log.Println("received create request")
+	trace, log := logInit(s)
+
+	trace.Info().Msg("received create request")
 
 	// functional validations
 	val, isValid, err := DetentionDirector(ctx, req)
-	log.Printf("provider valid: %v", isValid)
 	if !isValid || err != nil {
+		log.Error().Msgf("provider invalid: %v\n", err)
 		return &dolk.CreateResponse{}, err
 	}
+	trace.Info().Msgf("provider valid: %v\n", isValid)
 
 	// internal state
 	engineRequest := val.NewEngineRequest()

@@ -36,7 +36,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	dolk.RegisterDolkServer(s, &auto.Server{Logger: dlog.NewLogger()})
+	dolk.RegisterDolkServer(s, &auto.Server{Genke: dlog.NewLogger()})
 	if err := s.Serve(listener); err != nil {
 		log.Fatal().Str("scope", "entrypoint").Err(err).Msg(ErrServerNotStart.Error())
 	}
