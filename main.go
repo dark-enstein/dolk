@@ -72,6 +72,7 @@ func main() {
 func (i *StartUpInit) RetrieveFromCtx(key string) *internal.StartUpConfig {
 	if key == "" {
 		return &internal.StartUpConfig{}
+
 	}
 	return i.ctx.Value(key).(*internal.StartUpConfig)
 }

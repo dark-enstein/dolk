@@ -2,15 +2,18 @@ package auto
 
 import (
 	"context"
+	"log"
 	"strings"
 
 	dolk "github.com/dark-enstein/dolk/api/v1"
+
 	"github.com/dark-enstein/dolk/internal"
 	"github.com/rs/zerolog"
 )
 
 type Server struct {
 	Ctx context.Context
+
 	dolk.UnimplementedDolkServer
 }
 
@@ -29,6 +32,7 @@ func (s *Server) Create(ctx context.Context,
 
 	// functional validations
 	val, isValid, err := DetentionDirector(ctx, req)
+	log.Printf("provider valid: %v", isValid)
 	if !isValid || err != nil {
 		log.Info().Msgf("provider invalid: %v\n", err)
 		return nil, err
