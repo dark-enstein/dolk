@@ -8,7 +8,6 @@ import (
 
 	dolk "github.com/dark-enstein/dolk/api/v1"
 	"github.com/dark-enstein/dolk/auto"
-	"github.com/dark-enstein/dolk/dlog"
 	"github.com/dark-enstein/dolk/internal"
 	"google.golang.org/grpc"
 )
@@ -20,14 +19,14 @@ var (
 )
 
 type StartUpInit struct {
-	log dlog.Logger
+	log internal.Logger
 	ctx context.Context
 }
 
 func main() {
 	i := StartUpInit{}
 	i.ctx = context.Background()
-	genke := dlog.NewLogger(false)
+	genke := internal.NewLogger(false)
 	log := genke.Err()
 	trace := genke.Trace()
 
@@ -41,7 +40,7 @@ func main() {
 	}
 	trace.Info().Msgf("initiating connection to port %v", port)
 
-	sConfig := &internal.StartUpConfig{dlog.NewLogger(false), port}
+	sConfig := &internal.StartUpConfig{internal.NewLogger(false), port}
 	trace.Info().Msg("populating startup config")
 	i.ctx = context.WithValue(i.ctx, internal.MainConfig, sConfig)
 	trace.Info().Msg("loading context")

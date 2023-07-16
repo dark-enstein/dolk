@@ -13,7 +13,7 @@ import (
 type EngineRequest struct {
 	UUID     string
 	Provider string
-	Config   config.Config
+	Config   *config.Config
 	Ctx      *internal.ContextStack
 }
 
@@ -28,26 +28,41 @@ func (er *EngineRequest) WithProvider(prov string) *EngineRequest {
 	return er
 }
 
-func (er *EngineRequest) WithConfig(c config.Config) *EngineRequest {
+func (er *EngineRequest) WithConfig(c *config.Config) *EngineRequest {
 	er.Config = c
 	return er
 }
 
 func (er *EngineRequest) Run() EngineResponse {
-	worker := provider.Init(er.Provider)
+	trace, log := er.Ctx.LogInit()
+	trace.Info().Msg("starting worker")
+	worker := er.init()
+	trace.Info().Msgf("worker: %v", worker)
 
+	trace.Info().Msg("deploying")
 	shape, err := worker.Deploy()
+	if err != nil {
+		log.Error().Msgf("encountered error while worker deploying: %v", err)
+	}
+	trace.Info().Msgf("deployed\nshape: %v", shape)
 	return EngineResponse{AccessConfig: &cred.
 		Config{Config: []byte("access your new deployment here")},
 		Shape:       shape,
-		Error:       err,
+		Error:       "",
 		CreatedTime: time.Now()}
+}
+
+func (er *EngineRequest) init() *provider.Worker {
+	return &provider.Worker{UUID: er.UUID, Provider: er.Provider,
+		Version: er.Config.Version, Tags: er.Config.Tags,
+		Name: er.Config.Name, Options: er.Config.Directives,
+		Stack: er.Ctx}
 }
 
 type EngineResponse struct {
 	Code         int
 	Created      bool
-	Error        error
+	Error        string
 	Shape        *shape.Shape // have its own package
 	AccessConfig *cred.Config // its own package
 	CreatedTime  time.Time

@@ -3,7 +3,7 @@ package internal
 import (
 	"context"
 
-	"github.com/dark-enstein/dolk/dlog"
+	"github.com/rs/zerolog"
 )
 
 const (
@@ -11,11 +11,23 @@ const (
 )
 
 type StartUpConfig struct {
-	Logger *dlog.Logger
+	Logger *Logger
 	Port   string
 }
 
 type ContextStack struct {
 	Server context.Context
 	Client context.Context
+}
+
+func NewContextStack(server context.Context, client context.Context) *ContextStack {
+	return &ContextStack{
+		Server: server,
+		Client: client,
+	}
+}
+
+func (cs *ContextStack) LogInit() (*zerolog.Logger, *zerolog.Logger) {
+	config := cs.Server.Value(MainConfig).(*StartUpConfig)
+	return config.Logger.Trace(), config.Logger.Err()
 }

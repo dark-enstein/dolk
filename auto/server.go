@@ -2,13 +2,14 @@ package auto
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	dolk "github.com/dark-enstein/dolk/api/v1"
-
 	"github.com/dark-enstein/dolk/internal"
-	"github.com/rs/zerolog"
+)
+
+const ( // context-specific K/Vs
+	ContextClientRequest = "client request"
 )
 
 type Server struct {
@@ -17,21 +18,19 @@ type Server struct {
 	dolk.UnimplementedDolkServer
 }
 
-func logInit(s *Server) (*zerolog.Logger, *zerolog.Logger) {
-	config := s.Ctx.Value(internal.MainConfig).(*internal.StartUpConfig)
-	return config.Logger.Trace(), config.Logger.Err()
-}
-
 // Create receives a create request via grpc and processes it accordingly.
 // It returns a standard pointer to dolk.CreateResponse, and an error
 func (s *Server) Create(ctx context.Context,
 	req *dolk.CreateRequest) (resp *dolk.CreateResponse, err error) {
-	trace, log := logInit(s)
+	stack := internal.NewContextStack(s.Ctx, ctx)
+	trace, log := stack.LogInit()
 
 	trace.Info().Msg("received create request")
 
+	trace.Info().Msg("saved create request into client context")
+
 	// functional validations
-	val, isValid, err := DetentionDirector(ctx, req)
+	val, isValid, err := DetentionDirector(stack, req)
 	log.Printf("provider valid: %v", isValid)
 	if !isValid || err != nil {
 		log.Info().Msgf("provider invalid: %v\n", err)
@@ -40,16 +39,17 @@ func (s *Server) Create(ctx context.Context,
 	trace.Info().Msgf("provider valid: %v\n", isValid)
 
 	// internal state
-	engineRequest := val.NewEngineRequest(&s.Ctx)
+	engineRequest := val.NewEngineRequest()
 
 	// run engine
+	trace.Info().Msgf("runnning engine request: %v", engineRequest)
 	engineResponse := engineRequest.Run()
 
 	trace.Info().Msgf("grpc response: %v", engineResponse)
 	return &dolk.CreateResponse{Created: engineResponse.Created,
 			Code: int32(engineResponse.Code), State: engineResponse.Shape.String(),
 			AccessConfig: engineResponse.AccessConfig.String(),
-			Error:        engineResponse.Error.Error(),
+			Error:        engineResponse.Error,
 			CreatedTime:  engineResponse.CreatedTime.String()},
 		nil
 }

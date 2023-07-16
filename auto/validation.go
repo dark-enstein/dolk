@@ -1,7 +1,6 @@
 package auto
 
 import (
-	"context"
 	"fmt"
 
 	dolk "github.com/dark-enstein/dolk/api/v1"
@@ -22,25 +21,24 @@ var (
 )
 
 var supportedProviders = map[string]string{
-	"AWS": done,
+	"aws": done,
 }
 
 type Detention struct {
-	Config   config.Config
+	Config   *config.Config
 	Provider string
 	UUID     string
 	Ctx      *internal.ContextStack
 }
 
-func (d *Detention) NewEngineRequest(sCtx *context.Context) *engine.
+func (d *Detention) NewEngineRequest() *engine.
 	EngineRequest {
-	d.Ctx.Server = *sCtx
 	return &engine.EngineRequest{UUID: d.UUID, Provider: d.Provider,
 		Config: d.Config, Ctx: d.Ctx}
 }
 
 // Director
-func DetentionDirector(ctx context.Context,
+func DetentionDirector(stk *internal.ContextStack,
 	req *dolk.CreateRequest) (*Detention, bool, error) {
 
 	config, isValidConfig, err := validateConfig(req.Config)
@@ -60,13 +58,15 @@ func DetentionDirector(ctx context.Context,
 		Config:   config,
 		Provider: prov,
 		UUID:     uuid,
-		Ctx:      &internal.ContextStack{Client: ctx},
+		Ctx:      stk,
 	}, true, nil
 }
 
-func validateConfig(cfg *dolk.Config) (config.Config, bool, error) {
+func validateConfig(cfg *dolk.Config) (*config.Config, bool, error) {
 	tags := getTagsInCsv(cfg.Tag)
-	return config.Config{Tags: tags}, true, nil
+	return &config.Config{Version: cfg.Version, Tags: tags,
+			Name: cfg.ResourceName, Directives: cfg.Options}, true,
+		nil
 }
 
 func validateUUID(uuid string) (string, bool, error) {

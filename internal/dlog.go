@@ -1,4 +1,4 @@
-package dlog
+package internal
 
 import (
 	"bytes"
