@@ -5,6 +5,7 @@ import (
 
 	"github.com/dark-enstein/dolk/config"
 	"github.com/dark-enstein/dolk/cred"
+	"github.com/dark-enstein/dolk/internal"
 	"github.com/dark-enstein/dolk/provider"
 	"github.com/dark-enstein/dolk/shape"
 )
@@ -13,6 +14,7 @@ type EngineRequest struct {
 	UUID     string
 	Provider string
 	Config   config.Config
+	Ctx      *internal.ContextStack
 }
 
 func (er *EngineRequest) WithUUID(u string) *EngineRequest {
@@ -36,9 +38,10 @@ func (er *EngineRequest) Run() EngineResponse {
 
 	shape, err := worker.Deploy()
 	return EngineResponse{AccessConfig: &cred.
-	Config{Config: []byte("access your new deployment here"), Metadata: "no metadata"},
-		Shape: shape,
-		Error: err}
+		Config{Config: []byte("access your new deployment here")},
+		Shape:       shape,
+		Error:       err,
+		CreatedTime: time.Now()}
 }
 
 type EngineResponse struct {

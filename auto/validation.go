@@ -7,6 +7,7 @@ import (
 	dolk "github.com/dark-enstein/dolk/api/v1"
 	"github.com/dark-enstein/dolk/config"
 	"github.com/dark-enstein/dolk/engine"
+	"github.com/dark-enstein/dolk/internal"
 )
 
 const (
@@ -28,10 +29,14 @@ type Detention struct {
 	Config   config.Config
 	Provider string
 	UUID     string
+	Ctx      *internal.ContextStack
 }
 
-func (d *Detention) NewEngineRequest() *engine.EngineRequest {
-	return &engine.EngineRequest{UUID: d.UUID, Provider: d.Provider, Config: d.Config}
+func (d *Detention) NewEngineRequest(sCtx *context.Context) *engine.
+	EngineRequest {
+	d.Ctx.Server = *sCtx
+	return &engine.EngineRequest{UUID: d.UUID, Provider: d.Provider,
+		Config: d.Config, Ctx: d.Ctx}
 }
 
 // Director
@@ -55,6 +60,7 @@ func DetentionDirector(ctx context.Context,
 		Config:   config,
 		Provider: prov,
 		UUID:     uuid,
+		Ctx:      &internal.ContextStack{Client: ctx},
 	}, true, nil
 }
 
