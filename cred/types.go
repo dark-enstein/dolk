@@ -2,28 +2,29 @@ package cred
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 )
 
 var (
-	ErrFailedToUnmarshalJson = "failed to unmarshal json"
+	ErrFailedToMarshalJson = "failed to marshal json"
 )
 
+// Config is the object containing credentials information as pertaining the
+// request. This would make up the response json. It ha
 type Config struct {
-	Config   []byte
-	Metadata string
+	// Config contains the details of the credential information to be
+	//returned to the client
+	Config []byte
 }
 
+// convert login config data into json that will be sent to the client
 func (cfg *Config) String() string {
-	var config string
-	err := json.Unmarshal(cfg.Config, config)
+	jsonResp, err := json.Marshal(cfg.Config)
 
 	if err != nil {
-		log.Println(ErrFailedToUnmarshalJson)
-		return ErrFailedToUnmarshalJson
+		log.Println(ErrFailedToMarshalJson)
+		return ""
 	}
 
-	return fmt.Sprintf("config: %v\nmetadata: %v", config,
-		cfg.Metadata)
+	return string(jsonResp)
 }

@@ -6,3 +6,5 @@ type Config struct {
 	Tags       []string
 	Directives string
 }
+
+// config file reading and manipulation functions
